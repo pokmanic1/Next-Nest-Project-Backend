@@ -1,7 +1,7 @@
 import { UsersService } from './../users/users.service';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ExceptionHandler } from '@nestjs/core/errors/exception-handler.js';
-import { JwtModule,JwtService } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 type AuthInput = { email: string, password: string }
 type SingInData = { userId: number, email: string }
@@ -13,7 +13,7 @@ export class AuthService {
 
 
     constructor(private usersService: UsersService,
-                private jwtService:JwtService
+        private jwtService: JwtService
     ) { }
 
     getInfo() {
@@ -27,10 +27,18 @@ export class AuthService {
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
 
-    async singUp(input:AuthInput):Promise<any>{
-        try{
-            const user=1;
-        }catch(err){
+    async singUp(input: AuthInput): Promise<any> {
+        try {
+            const userExist=await  this.validateUser(input)
+            
+            if(userExist){
+                throw new UnauthorizedException()
+            }
+
+            const user = await this.usersService.createUser(input);
+            return this.Token(user)
+
+        } catch (err) {
             throw new UnauthorizedException()
         }
     }
@@ -51,17 +59,27 @@ export class AuthService {
         try {
             const user = await this.validateUser(input)
 
-            if(!user){
+            if (!user) {
                 throw new UnauthorizedException()
             }
 
-            return this.singIn(user)
+            return this.Token(user)
 
         } catch (err) {
             throw new UnauthorizedException()
         }
     }
 
+
+
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------VALIDATE USER-----------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+  
     async validateUser(input: AuthInput): Promise<SingInData | null> {
 
         const user = await this.usersService.findUserByName(input.email)
@@ -83,24 +101,24 @@ export class AuthService {
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
-   
 
 
-    async singIn(user:SingInData):Promise<AuthResult>{
-        const payload={
-            sub:user.userId,
-            email:user.email
+
+    async Token(user: SingInData): Promise<AuthResult> {
+        const payload = {
+            sub: user.userId,
+            email: user.email
         }
 
-        const acessToken=await this.jwtService.signAsync(payload);
+        const acessToken = await this.jwtService.signAsync(payload);
 
         return {
-            acessToken:acessToken,
-            userId:user.userId,
-            email:user.email
+            acessToken: acessToken,
+            userId: user.userId,
+            email: user.email
         }
 
-    }   
+    }
 
 
 

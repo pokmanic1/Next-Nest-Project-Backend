@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 
 export type User={
     userId:number,
@@ -41,6 +42,16 @@ export class UsersService {
 
         return users.find((user) => user.email === email)
 
+    }
+
+
+    async createUser(input:{email:string,password:string}):Promise<User>{
+        const user={userId:users.length+1,
+                    email:input.email,
+                    password:input.password
+        }
+        const newUser = users.push(user)
+        return user;
     }
 
 }
