@@ -22,8 +22,8 @@ export class AuthController {
     // -------------------------------------------------------------------------------------------------------------
 
 
-    @Post('sing')
-    singUp(@Body() input:{email:string,password:string}){
+      @Post('sing')
+    singUp(@Body() input: { username: string, email: string, password: string }) {
         return this.authService.singUp(input)
     }
 
