@@ -3,40 +3,11 @@ import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../lib/schema/users.schema';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 
-export type UserType = {
-    userId: number,
-    email: string,
-    password: string
-}
 
-export const users = [
-    {
-        userId: 1,
-        email: "john_doe",
-        password: "Password123!"
-    },
-    {
-        userId: 2,
-        email: "jane_smith",
-        password: "SecurePass456#"
-    },
-    {
-        userId: 3,
-        email: "alex_dev",
-        password: "CodeMaster789$"
-    },
-    {
-        userId: 4,
-        email: "sarah_k",
-        password: "MySecretKey321@"
-    },
-    {
-        userId: 5,
-        email: "mike_tech",
-        password: "TechUser999%"
-    }
-];
+
+
 
 @Injectable()
 export class UsersService {
@@ -59,10 +30,14 @@ export class UsersService {
 
     async createUser(input: { username: string; email: string; password: string }): Promise<UserDocument> {
 
+        const salt=await bcrypt.genSalt(10)
+        const hashedPassword=await bcrypt.hash(input.password,salt);
+
+
         const created = new this.userModel({
             username: input.username,
             email: input.email,
-            password: input.password,
+            password:hashedPassword ,
         });
 
         return created.save();

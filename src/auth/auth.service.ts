@@ -1,85 +1,72 @@
 import { UsersService } from './../users/users.service';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
-type AuthInput = { username: string, email: string, password: string }
-type AuthInputLogin = { email: string, password: string }
-type SingInData = { userId: string, email: string }
-type AuthResult = { acessToken: string, userId: string, email: string }
-
+type AuthInput = { username: string; email: string; password: string };
+type AuthInputLogin = { email: string; password: string };
+type SingInData = { userId: string; email: string };
+type AuthResult = { acessToken: string; userId: string; email: string };
 
 @Injectable()
 export class AuthService {
-
-    constructor(private usersService: UsersService,
+    constructor(
+        private usersService: UsersService,
         private jwtService: JwtService
     ) { }
 
     getInfo() {
-        return { data: 'x', message: 'succes' }
+        return { data: 'x', message: 'succes' };
     }
 
-    // ---------------------------------------INREGISTRARE-----------------------------------------------------------------
-
-    async singUp(input: AuthInput): Promise<any> {
-        try {
-            const userExist = await this.validateUser(input)
-
-            if (userExist) {
-                throw new UnauthorizedException()
-            }
-
-            const user = await this.usersService.createUser(input);
-            return this.Token({
-                userId: user._id.toString(),
-                email: user.email,
-            })
-
-        } catch (err) {
-            throw new UnauthorizedException()
+    // ---------------------------------------SIGN UP-----------------------------------------------------------------
+    async singUp(input: AuthInput): Promise<AuthResult> {
+        const userExist = await this.usersService.findUserByEmail(input.email);
+        if (userExist) {
+            throw new BadRequestException('Email already in use');
         }
+
+        const user = await this.usersService.createUser(input);
+        return this.Token({
+            userId: user._id.toString(),
+            email: user.email,
+        });
     }
 
     // ---------------------------------------LOGIN-----------------------------------------------------------------
-
-    async login(input: AuthInputLogin): Promise<any> {
-        try {
-            const user = await this.validateUser(input)
-
-            if (!user) {
-                throw new UnauthorizedException()
-            }
-
-            return this.Token(user)
-
-        } catch (err) {
-            throw new UnauthorizedException()
+    async login(input: AuthInputLogin): Promise<AuthResult> {
+        const user = await this.validateUser(input);
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
         }
+        return this.Token(user);
     }
 
     // ---------------------------------------VALIDATE USER-----------------------------------------------------------------
+    async validateUser(input: AuthInputLogin): Promise<SingInData | null> {
+        const user = await this.usersService.findUserByEmail(input.email);
+        if (!user) {
+            return null;
+        }
 
-    async validateUser(input: AuthInputLogin): Promise<any | null> {
+        const passwordMatch = await bcrypt.compare(input.password, user.password);
 
-        const user = await this.usersService.findUserByEmail(input.email)
-
-        if (user && user.password === input.password) {
+        if (passwordMatch) {
             return {
                 userId: user._id.toString(),
                 email: user.email
-            }
+            };
         }
 
-        return null
+        return null;
     }
 
     // ---------------------------------------JWT TOKEN-----------------------------------------------------------------
-
     async Token(user: SingInData): Promise<AuthResult> {
         const payload = {
             sub: user.userId,
             email: user.email
-        }
+        };
 
         const acessToken = await this.jwtService.signAsync(payload);
 
@@ -87,6 +74,6 @@ export class AuthService {
             acessToken: acessToken,
             userId: user.userId,
             email: user.email
-        }
+        };
     }
 }
