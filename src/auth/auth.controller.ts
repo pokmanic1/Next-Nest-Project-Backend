@@ -5,6 +5,7 @@ import { AuthGuard } from './guard/auth.guard';
 import { Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { access } from 'fs';
+import { SignUpDto } from './dto/singUp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +29,7 @@ export class AuthController {
 
 
     @Post('sing')
-    async singUp(@Body() input: { username: string, email: string, password: string },
+    async singUp(@Body() input: SignUpDto,
         @Res({ passthrough: true }) res: Response) {
 
         const result = await this.authService.singUp(input)
