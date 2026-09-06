@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { User } from './../lib/schema/users.schema';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service'
 import { AuthGuard } from './guard/auth.guard';
 import { Res } from '@nestjs/common';
@@ -11,8 +12,11 @@ export class AuthController {
 
     @UseGuards(AuthGuard)
     @Get()
-    info() {
-        return this.authService.getInfo()
+    info(@Req() req:any ) {
+        
+           return {userEmail:req.user.email}
+     
+            
     }
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
@@ -29,7 +33,7 @@ export class AuthController {
 
         const result = await this.authService.singUp(input)
 
-        res.cookie('acess_token', result.acessToken, {
+        res.cookie('access_token', result.acessToken, {
             httpOnly: true,
             sameSite: 'lax',
             secure: process.env.NODE_ENV === 'production',
@@ -77,7 +81,7 @@ export class AuthController {
     @Post('logout')
     logout(@Res({ passthrough: true }) res: Response): any {
 
-        res.clearCookie('acess_token');
+        res.clearCookie('access_token');
         return { message: 'ai fost deconectat' }
     }
 
