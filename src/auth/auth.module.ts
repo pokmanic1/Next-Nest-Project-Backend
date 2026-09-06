@@ -14,7 +14,7 @@ const JWT_SECRET = 'jwt-secret';
   imports: [UsersModule,
     JwtModule.register({
       global: true,
-      secret: JWT_SECRET,
+      secret: process.env.JWT_SECRET|| 'CHEIE_SECRETA_TEMPORARA',
       signOptions: { expiresIn: '1d' }
     })
   ]

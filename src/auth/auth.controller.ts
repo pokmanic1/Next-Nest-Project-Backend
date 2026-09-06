@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service'
 import { AuthGuard } from './guard/auth.guard';
-
-
+import { Res } from '@nestjs/common';
+import type { Response } from 'express';
+import { access } from 'fs';
 
 @Controller('auth')
 export class AuthController {
@@ -22,23 +23,80 @@ export class AuthController {
     // -------------------------------------------------------------------------------------------------------------
 
 
-      @Post('sing')
-    singUp(@Body() input: { username: string, email: string, password: string }) {
-        return this.authService.singUp(input)
+    @Post('sing')
+    async singUp(@Body() input: { username: string, email: string, password: string },
+        @Res({ passthrough: true }) res: Response) {
+
+        const result = await this.authService.singUp(input)
+
+        res.cookie('acess_token', result.acessToken, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+
+        return { userId: result.userId, userEmail: result.email, accessToken: result.acessToken }
+
     }
 
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
-    // ---------------------------------------LOGIN-----------------------------------------------------------------
+    // ---------------------------------------LOG IN-----------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------
 
     @Post('login')
-    login(@Body() input: { email: string, password: string }) {
-        return this.authService.login(input)
+    async login(@Body() input: { email: string, password: string },
+        @Res({ passthrough: true }) res: Response) {
+        const result = await this.authService.login(input)
+        res.cookie('access_token', result.acessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+
+        return { userId: result.userId, userEmail: result.email, accessToken: result.acessToken }
+
     }
+
+
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------LOG OUT-----------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------
+
+
+
+    @Post('logout')
+    logout(@Res({ passthrough: true }) res: Response): any {
+
+        res.clearCookie('acess_token');
+        return { message: 'ai fost deconectat' }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
