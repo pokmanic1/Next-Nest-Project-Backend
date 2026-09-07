@@ -6,6 +6,7 @@ import { Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { access } from 'fs';
 import { SignUpDto } from './dto/singUp.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -54,7 +55,7 @@ export class AuthController {
     // -------------------------------------------------------------------------------------------------------------
 
     @Post('login')
-    async login(@Body() input: { email: string, password: string },
+    async login(@Body() input: LoginDto,
         @Res({ passthrough: true }) res: Response) {
         const result = await this.authService.login(input)
         res.cookie('access_token', result.acessToken, {
