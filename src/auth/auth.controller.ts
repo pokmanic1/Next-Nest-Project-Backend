@@ -1,10 +1,8 @@
-import { User } from './../lib/schema/users.schema';
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service'
 import { AuthGuard } from './guard/auth.guard';
 import { Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { access } from 'fs';
 import { SignUpDto } from './dto/singUp.dto';
 import { LoginDto } from './dto/login.dto';
 

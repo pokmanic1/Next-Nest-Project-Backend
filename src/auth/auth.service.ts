@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 type AuthInput = { username: string; email: string; password: string };
-type    AuthInputLogin = { email: string; password: string };
+type AuthInputLogin = { email: string; password: string };
 type SingInData = { userId: string; email: string };
 type AuthResult = { acessToken: string; userId: string; email: string };
 
@@ -15,7 +15,7 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
- 
+
 
 
 

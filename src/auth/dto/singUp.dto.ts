@@ -3,7 +3,7 @@ import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
 export class SignUpDto {
     @IsString()
     @MinLength(3, { message: 'Username-ul trebuie sa aiba minim 3 caractere' })
-    @MaxLength(20)
+    @MaxLength(15)
     username: string;
 
     @IsEmail({}, { message: 'Email invalid' })
