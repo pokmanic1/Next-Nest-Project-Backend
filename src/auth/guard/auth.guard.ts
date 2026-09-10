@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
 
 
         } catch (err) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException("Lipseste tokenul de acess")
         }
 
 

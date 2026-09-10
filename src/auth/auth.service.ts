@@ -53,7 +53,7 @@ export class AuthService {
     async login(input: AuthInputLogin): Promise<AuthResult> {
         const user = await this.validateUser(input);
         if (!user) {
-            throw new UnauthorizedException('Invalid credentials');
+            throw new UnauthorizedException('Parola sau email invalid');
         }
         return this.Token(user);
     }

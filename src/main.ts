@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './utils/transform.interceptor';
+//npm install cookie-parser
+//npm install -D @types/cookie-parser
 import cookieParser from 'cookie-parser';
+//npm install class-validator class-transformer
 import { ValidationPipe } from '@nestjs/common';
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
